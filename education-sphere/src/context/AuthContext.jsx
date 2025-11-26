@@ -2,17 +2,14 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { message } from "antd";
 
-// Create context
 const AuthContext = createContext();
-
-// Custom hook
 export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  // Load user from localStorage on mount
+  // Load user from localStorage
   useEffect(() => {
     const storedUser = localStorage.getItem("schoolUser");
     if (storedUser) setUser(JSON.parse(storedUser));
@@ -24,25 +21,17 @@ export const AuthProvider = ({ children }) => {
     else localStorage.removeItem("schoolUser");
   }, [user]);
 
-  // Login function
+  // Login
   const login = async ({ email, password, role }) => {
     setLoading(true);
-
     return new Promise((resolve) => {
       setTimeout(() => {
-        // No hardcoded passwords; just find user in localStorage
         const storedUsers = JSON.parse(localStorage.getItem("users") || "[]");
-        let found = storedUsers.find(u => u.email === email && u.password === password && u.role === role);
+        const found = storedUsers.find(
+          (u) => u.email === email && u.password === password && u.role === role
+        );
 
         if (found) {
-          // Ensure student records exist
-          if (found.role === "student") {
-            found.grades = found.grades || [];
-            found.attendanceRecords = found.attendanceRecords || [];
-            found.feesRecords = found.feesRecords || [];
-            found.gpa = found.gpa ?? null;
-          }
-
           setUser(found);
           message.success(`Welcome, ${found.name}`);
           resolve(true);
@@ -56,35 +45,36 @@ export const AuthProvider = ({ children }) => {
     });
   };
 
-  // Register function
+  // Register
   const register = async ({ name, email, password, role }) => {
     setLoading(true);
-
     return new Promise((resolve) => {
       setTimeout(() => {
-        // Get existing users
         const storedUsers = JSON.parse(localStorage.getItem("users") || "[]");
 
         // Check if email already exists
-        if (storedUsers.some(u => u.email === email)) {
-          message.error("Email already registered");
+        if (storedUsers.some((u) => u.email === email)) {
+          message.error("Email already registered!");
           setLoading(false);
-          resolve(false);
-          return;
+          return resolve(false);
         }
 
-        // Create new user
-        const newUser = { id: Date.now().toString(), name, email, password, role };
+        // Generate internal ID (temporary)
+        const internalID = Date.now().toString();
 
-        // Initialize student records empty
-        if (role === "student") {
-          newUser.grades = [];
-          newUser.attendanceRecords = [];
-          newUser.feesRecords = [];
-          newUser.gpa = null;
-        }
+        const newUser = {
+          id: internalID,        // internal system ID
+          name,
+          email,
+          password,
+          role,
+          studentID: role === "student" ? "" : null, // admin will assign later
+          grades: role === "student" ? [] : null,
+          attendanceRecords: role === "student" ? [] : null,
+          gpa: role === "student" ? null : null,
+          fees: role === "student" ? null : null,
+        };
 
-        // Save to localStorage
         storedUsers.push(newUser);
         localStorage.setItem("users", JSON.stringify(storedUsers));
 
@@ -96,7 +86,6 @@ export const AuthProvider = ({ children }) => {
     });
   };
 
-  // Logout
   const logout = () => {
     setUser(null);
     message.info("Logged out");
