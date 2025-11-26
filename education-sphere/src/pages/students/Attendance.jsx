@@ -1,38 +1,22 @@
+// src/pages/students/Attendance.jsx
 import React from "react";
+import { Card, Table } from "antd";
 
-const Attendance = () => {
-  const attendanceRecords = [
-    { date: "2025-11-01", status: "Present" },
-    { date: "2025-11-02", status: "Absent" },
-    { date: "2025-11-03", status: "Present" },
-    { date: "2025-11-04", status: "Present" },
+const Attendance = ({ attendanceRecords = [] }) => {
+  const columns = [
+    { title: "Month", dataIndex: "month", key: "month" },
+    { title: "Attendance", dataIndex: "percentage", key: "percentage" },
   ];
 
   return (
-    
-      <div className="space-y-6">
-        <h1 className="text-3xl font-bold">Attendance</h1>
-        <div className="bg-white p-6 rounded shadow">
-          <table className="w-full border-collapse border">
-            <thead className="bg-gray-100">
-              <tr>
-                <th className="border p-2">Date</th>
-                <th className="border p-2">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {attendanceRecords.map((rec, idx) => (
-                <tr key={idx}>
-                  <td className="border p-2">{rec.date}</td>
-                  <td className={`border p-2 font-semibold ${rec.status === "Present" ? "text-green-600" : "text-red-600"}`}>
-                    {rec.status}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+    <Card>
+      <h2 className="text-xl font-semibold mb-4">Attendance</h2>
+      {attendanceRecords.length > 0 ? (
+        <Table columns={columns} dataSource={attendanceRecords} pagination={false} />
+      ) : (
+        <p className="text-gray-500">No attendance records available yet.</p>
+      )}
+    </Card>
   );
 };
 

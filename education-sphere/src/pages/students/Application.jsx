@@ -1,37 +1,48 @@
 import React from "react";
+import { Routes, Route, Navigate, Link } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
+
+// Student pages
+import StudentDashboard from "./StudentDashboard";
+import Attendance from "./Attendance";
+import Academics from "./AcademicProgress";
+import Fees from "./Fees";
+
+// Sidebar or Nav for student
+const StudentNav = () => (
+  <nav className="bg-gray-100 p-4 flex gap-4">
+    <Link to="/student/dashboard" className="text-blue-700 font-semibold">Dashboard</Link>
+    <Link to="/student/attendance" className="text-blue-700 font-semibold">Attendance</Link>
+    <Link to="/student/academics" className="text-blue-700 font-semibold">Academics</Link>
+    <Link to="/student/fees" className="text-blue-700 font-semibold">Fees</Link>
+  </nav>
+);
 
 const Application = () => {
+  const { user } = useAuth();
+
+  // Redirect to login if not a student
+  if (!user || user.role !== "student") {
+    return <Navigate to="/login" replace />;
+  }
+
   return (
-    
-      <div className="space-y-6">
-        <h1 className="text-3xl font-bold">Online Application</h1>
-        <p className="text-gray-600">
-          Submit or track your application to the school.
-        </p>
-        <div className="bg-white p-6 rounded shadow max-w-xl">
-          <form className="space-y-4">
-            <div>
-              <label className="block font-semibold">Full Name</label>
-              <input type="text" className="w-full border p-2 rounded" placeholder="John Doe" />
-            </div>
-            <div>
-              <label className="block font-semibold">Date of Birth</label>
-              <input type="date" className="w-full border p-2 rounded" />
-            </div>
-            <div>
-              <label className="block font-semibold">Class Applying For</label>
-              <select className="w-full border p-2 rounded">
-                <option>Form 1</option>
-                <option>Form 2</option>
-                <option>Form 3</option>
-              </select>
-            </div>
-            <button className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
-              Submit Application
-            </button>
-          </form>
-        </div>
+    <div>
+      {/* Navigation */}
+      <StudentNav />
+
+      {/* Main content */}
+      <div className="p-6">
+        <Routes>
+          <Route path="dashboard" element={<StudentDashboard />} />
+          <Route path="attendance" element={<Attendance />} />
+          <Route path="academics" element={<Academics />} />
+          <Route path="fees" element={<Fees />} />
+          {/* Default redirect to dashboard */}
+          <Route path="" element={<Navigate to="dashboard" replace />} />
+        </Routes>
       </div>
+    </div>
   );
 };
 

@@ -8,18 +8,17 @@ const AuthContext = createContext();
 // Custom hook
 export const useAuth = () => useContext(AuthContext);
 
-// AuthProvider
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  // Load logged-in user from localStorage
+  // Load user from localStorage on mount
   useEffect(() => {
     const storedUser = localStorage.getItem("schoolUser");
     if (storedUser) setUser(JSON.parse(storedUser));
   }, []);
 
-  // Persist logged-in user to localStorage
+  // Persist user to localStorage
   useEffect(() => {
     if (user) localStorage.setItem("schoolUser", JSON.stringify(user));
     else localStorage.removeItem("schoolUser");
@@ -31,15 +30,19 @@ export const AuthProvider = ({ children }) => {
 
     return new Promise((resolve) => {
       setTimeout(() => {
-        // Get registered users from localStorage
-        const users = JSON.parse(localStorage.getItem("users") || "[]");
-
-        // Find user with matching email, password, and role
-        const found = users.find(
-          (u) => u.email === email && u.password === password && u.role === role
-        );
+        // No hardcoded passwords; just find user in localStorage
+        const storedUsers = JSON.parse(localStorage.getItem("users") || "[]");
+        let found = storedUsers.find(u => u.email === email && u.password === password && u.role === role);
 
         if (found) {
+          // Ensure student records exist
+          if (found.role === "student") {
+            found.grades = found.grades || [];
+            found.attendanceRecords = found.attendanceRecords || [];
+            found.feesRecords = found.feesRecords || [];
+            found.gpa = found.gpa ?? null;
+          }
+
           setUser(found);
           message.success(`Welcome, ${found.name}`);
           resolve(true);
@@ -59,11 +62,11 @@ export const AuthProvider = ({ children }) => {
 
     return new Promise((resolve) => {
       setTimeout(() => {
-        // Load users from localStorage
-        const users = JSON.parse(localStorage.getItem("users") || "[]");
+        // Get existing users
+        const storedUsers = JSON.parse(localStorage.getItem("users") || "[]");
 
-        // Check if email is already registered
-        if (users.some((u) => u.email === email)) {
+        // Check if email already exists
+        if (storedUsers.some(u => u.email === email)) {
           message.error("Email already registered");
           setLoading(false);
           resolve(false);
@@ -71,19 +74,20 @@ export const AuthProvider = ({ children }) => {
         }
 
         // Create new user
-        const newUser = {
-          id: Date.now().toString(), // unique ID for dashboard mapping
-          name,
-          email,
-          password,
-          role,
-        };
+        const newUser = { id: Date.now().toString(), name, email, password, role };
+
+        // Initialize student records empty
+        if (role === "student") {
+          newUser.grades = [];
+          newUser.attendanceRecords = [];
+          newUser.feesRecords = [];
+          newUser.gpa = null;
+        }
 
         // Save to localStorage
-        users.push(newUser);
-        localStorage.setItem("users", JSON.stringify(users));
+        storedUsers.push(newUser);
+        localStorage.setItem("users", JSON.stringify(storedUsers));
 
-        // Set user in context
         setUser(newUser);
         message.success("Account created successfully!");
         setLoading(false);
@@ -99,16 +103,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-        setUser,
-        loading,
-        login,
-        register,
-        logout,
-      }}
-    >
+    <AuthContext.Provider value={{ user, setUser, loading, login, register, logout }}>
       {children}
     </AuthContext.Provider>
   );

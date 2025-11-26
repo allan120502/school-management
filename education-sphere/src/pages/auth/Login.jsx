@@ -7,16 +7,27 @@ import logo from "/src/assets/images/Logo.png";
 
 const { Option } = Select;
 
-const Login = () => {
+export default function Login() {
   const { login, loading } = useAuth();
   const navigate = useNavigate();
   const [error, setError] = useState("");
 
   const onFinish = async (values) => {
     setError("");
+
+    // Validate password strength
+    const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
+    if (!strongPasswordRegex.test(values.password)) {
+      setError(
+        "Password too weak. Must include uppercase, lowercase, number, special char, min 8 chars."
+      );
+      return;
+    }
+
     const success = await login(values);
     if (!success) return;
 
+    // Redirect based on role
     switch (values.role) {
       case "admin": navigate("/admin"); break;
       case "teacher": navigate("/teacher"); break;
@@ -37,7 +48,7 @@ const Login = () => {
         {error && <p className="text-red-600 text-center mb-2">{error}</p>}
 
         <Form layout="vertical" onFinish={onFinish}>
-          <Form.Item name="email" rules={[{ required: true, message: "Enter email" }]}>
+          <Form.Item name="email" rules={[{ required: true, message: "Enter email" }, { type: "email" }]}>
             <Input placeholder="Email" />
           </Form.Item>
 
@@ -56,19 +67,23 @@ const Login = () => {
           </Form.Item>
 
           <Form.Item>
-            <Button type="primary" htmlType="submit" block loading={loading} style={{ backgroundColor: "#0B3D91", color: "#FFD700" }}>
-              Log In
+            <Button
+              type="primary"
+              htmlType="submit"
+              block
+              loading={loading}
+              style={{ backgroundColor: "#0B3D91", color: "#FFD700" }}
+            >
+              Login
             </Button>
           </Form.Item>
         </Form>
 
-        <div className="flex justify-between text-sm mt-4">
-          <Link to="/forgot-password" className="text-yellow-400">Forgot Password?</Link>
-          <Link to="/register" className="text-yellow-400">Register</Link>
+        <div className="flex justify-between mt-4 text-sm">
+          <Link to="/forgot-password" className="text-yellow-500 font-medium">Forgot Password?</Link>
+          <Link to="/register" className="text-yellow-500 font-medium">Register</Link>
         </div>
       </div>
     </div>
   );
-};
-
-export default Login;
+}

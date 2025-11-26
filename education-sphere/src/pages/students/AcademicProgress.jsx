@@ -1,40 +1,23 @@
+// src/pages/students/Academics.jsx
 import React from "react";
+import { Card, Table } from "antd";
 
-const AcademicProgress = () => {
-  const subjects = [
-    { subject: "Mathematics", score: 85, grade: "A" },
-    { subject: "English", score: 78, grade: "B+" },
-    { subject: "Science", score: 92, grade: "A+" },
-    { subject: "History", score: 70, grade: "B" },
+const Academics = ({ grades = [] }) => {
+  const columns = [
+    { title: "Subject", dataIndex: "subject", key: "subject" },
+    { title: "Grade", dataIndex: "grade", key: "grade" },
   ];
 
   return (
-  
-      <div className="space-y-6">
-        <h1 className="text-3xl font-bold">Academic Progress</h1>
-        <div className="bg-white p-6 rounded shadow overflow-x-auto">
-          <table className="w-full border-collapse border">
-            <thead className="bg-gray-100">
-              <tr>
-                <th className="border p-2">Subject</th>
-                <th className="border p-2">Score</th>
-                <th className="border p-2">Grade</th>
-              </tr>
-            </thead>
-            <tbody>
-              {subjects.map((subj, idx) => (
-                <tr key={idx}>
-                  <td className="border p-2">{subj.subject}</td>
-                  <td className="border p-2">{subj.score}</td>
-                  <td className="border p-2 font-semibold">{subj.grade}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
+    <Card>
+      <h2 className="text-xl font-semibold mb-4">Grades</h2>
+      {grades.length > 0 ? (
+        <Table columns={columns} dataSource={grades} pagination={false} />
+      ) : (
+        <p className="text-gray-500">No grades available yet.</p>
+      )}
+    </Card>
   );
 };
 
-export default AcademicProgress;
+export default Academics;
