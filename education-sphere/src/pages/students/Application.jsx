@@ -1,9 +1,8 @@
 import React from "react";
-import Layout from "../../components/layout/Layout";
 
 const Application = () => {
   return (
-    <Layout>
+    
       <div className="space-y-6">
         <h1 className="text-3xl font-bold">Online Application</h1>
         <p className="text-gray-600">
@@ -33,7 +32,6 @@ const Application = () => {
           </form>
         </div>
       </div>
-    </Layout>
   );
 };
 

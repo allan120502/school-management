@@ -1,5 +1,4 @@
 import React from "react";
-import Layout from "../../components/layout/Layout";
 
 const AcademicProgress = () => {
   const subjects = [
@@ -10,7 +9,7 @@ const AcademicProgress = () => {
   ];
 
   return (
-    <Layout>
+  
       <div className="space-y-6">
         <h1 className="text-3xl font-bold">Academic Progress</h1>
         <div className="bg-white p-6 rounded shadow overflow-x-auto">
@@ -34,7 +33,7 @@ const AcademicProgress = () => {
           </table>
         </div>
       </div>
-    </Layout>
+
   );
 };
 

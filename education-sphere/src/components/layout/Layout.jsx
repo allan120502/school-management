@@ -1,33 +1,20 @@
-// src/components/Layout.jsx
-import React, { useState } from "react";
-import { Layout as AntLayout } from "antd";
+import React from "react";
+import { Outlet } from "react-router-dom";
 import Header from "./Header";
 import Sidebar from "./Sidebar";
 import Footer from "./Footer";
 
-const { Content } = AntLayout;
-
-const Layout = ({ children, userRole }) => {
-  const [collapsed, setCollapsed] = useState(false); // Desktop sidebar
-
-
-  return (
-    <AntLayout style={{ minHeight: "100vh", backgroundColor: "#f7fafc" }}>
-      {/* Single Sidebar, menu changes based on userRole */}
-      <Sidebar
-        collapsed={collapsed}
-        toggleCollapsed={() => setCollapsed(!collapsed)}
-    
-        userRole={userRole} // passes role to Sidebar
-      />
-
-      <AntLayout>
-        <Header  userRole={userRole} />
-        <Content style={{ margin: "16px" }}>{children}</Content>
-        <Footer />
-      </AntLayout>
-    </AntLayout>
-  );
-};
+const Layout = ({ userRole }) => (
+  <div className="flex min-h-screen">
+    <Sidebar userRole={userRole} />
+    <div className="flex-1 flex flex-col">
+      <Header userRole={userRole} />
+      <main className="p-6 flex-1 bg-gray-100">
+        <Outlet /> {/* Nested pages render here */}
+      </main>
+      <Footer />
+    </div>
+  </div>
+);
 
 export default Layout;
