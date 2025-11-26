@@ -1,20 +1,50 @@
-import React from "react";
+// src/components/layout/Layout.jsx
+import React, { useState } from "react";
+import { Layout as AntLayout } from "antd";
 import { Outlet } from "react-router-dom";
 import Header from "./Header";
 import Sidebar from "./Sidebar";
 import Footer from "./Footer";
 
-const Layout = ({ userRole }) => (
-  <div className="flex min-h-screen">
-    <Sidebar userRole={userRole} />
-    <div className="flex-1 flex flex-col">
-      <Header userRole={userRole} />
-      <main className="p-6 flex-1 bg-gray-100">
-        <Outlet /> {/* Nested pages render here */}
-      </main>
-      <Footer />
-    </div>
-  </div>
-);
+const { Content } = AntLayout;
+
+const Layout = ({ userRole }) => {
+  // Desktop collapse
+  const [collapsed, setCollapsed] = useState(false);
+
+  // Mobile drawer
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  const toggleCollapsed = () => setCollapsed(!collapsed);
+  const toggleMobile = () => setMobileOpen(!mobileOpen);
+
+  return (
+    <AntLayout style={{ minHeight: "100vh" }}>
+      <Sidebar
+        collapsed={collapsed}
+        toggleCollapsed={toggleCollapsed}
+        mobileOpen={mobileOpen}
+        toggleMobile={toggleMobile}
+        userRole={userRole}
+      />
+
+      <AntLayout>
+        <Header
+          collapsed={collapsed}
+          toggleCollapsed={toggleCollapsed}
+          toggleMobile={toggleMobile}
+        />
+
+        <Content style={{ margin: "24px 16px 0" }}>
+          <div className="p-6 bg-gray-100 min-h-[80vh]">
+            <Outlet />
+          </div>
+        </Content>
+
+        <Footer />
+      </AntLayout>
+    </AntLayout>
+  );
+};
 
 export default Layout;
