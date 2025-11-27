@@ -6,6 +6,12 @@ import PrivateRoute from "./PrivateRoute";
 
 // Admin
 import AdminDashboard from "../pages/admin/AdminDashboard";
+import AssignAttendance from "../pages/admin/AssignAttendance";
+import AssignGrades from "../pages/admin/AssignGrades";
+import ManageTeachers from "../pages/admin/ManageTeachers";
+import ManageStudents from "../pages/admin/ManageStudents";
+import Reports from "../pages/admin/Reports";
+import Notifications from "../pages/admin/Notifications";
 
 // Teacher
 import TeacherDashboard from "../pages/teacher/TeacherDashboard";
@@ -25,7 +31,7 @@ import Fees from "../pages/students/Fees";
 
 // Auth
 import Login from "../pages/auth/Login";
-import RegisterStudent from "../pages/auth/Register";
+import Register from "../pages/auth/Register";
 import ForgotPassword from "../pages/auth/ForgotPassword";
 
 const AppRoutes = () => {
@@ -35,7 +41,7 @@ const AppRoutes = () => {
 
       {/* Auth */}
       <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<RegisterStudent />} />
+      <Route path="/register" element={<Register />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
 
       {/* Admin */}
@@ -48,6 +54,13 @@ const AppRoutes = () => {
         }
       >
         <Route index element={<AdminDashboard />} />
+        <Route path="dashboard" element={<AdminDashboard />} />
+        <Route path="manage-students" element={<ManageStudents />} />
+        <Route path="manage-teachers" element={<ManageTeachers />} />
+        <Route path="assign-attendance" element={<AssignAttendance />} />
+        <Route path="assign-grades" element={<AssignGrades />} />
+        <Route path="reports" element={<Reports />} />
+        <Route path="notifications" element={<Notifications />} />
       </Route>
 
       {/* Teacher */}
@@ -60,6 +73,7 @@ const AppRoutes = () => {
         }
       >
         <Route index element={<TeacherDashboard />} />
+        <Route path="dashboard" element={<TeacherDashboard />} />
       </Route>
 
       {/* Finance */}
@@ -72,6 +86,7 @@ const AppRoutes = () => {
         }
       >
         <Route index element={<FinanceDashboard />} />
+        <Route path="dashboard" element={<FinanceDashboard />} />
       </Route>
 
       {/* Parent */}
@@ -84,6 +99,7 @@ const AppRoutes = () => {
         }
       >
         <Route index element={<ParentDashboard />} />
+        <Route path="dashboard" element={<ParentDashboard />} />
       </Route>
 
       {/* Student */}
@@ -95,8 +111,8 @@ const AppRoutes = () => {
           </PrivateRoute>
         }
       >
-        {/* Nested Student Pages */}
         <Route index element={<StudentDashboard />} />
+        <Route path="dashboard" element={<StudentDashboard />} />
         <Route path="profile" element={<StudentProfile />} />
         <Route path="attendance" element={<Attendance />} />
         <Route path="academic" element={<AcademicProgress />} />

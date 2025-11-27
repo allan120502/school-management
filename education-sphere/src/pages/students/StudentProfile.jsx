@@ -1,6 +1,7 @@
+// src/pages/students/StudentProfile.jsx
 import React from "react";
-import { Card, Descriptions } from "antd";
 import { useAuth } from "../../context/AuthContext";
+import { Card } from "antd";
 
 const StudentProfile = () => {
   const { user } = useAuth();
@@ -9,13 +10,14 @@ const StudentProfile = () => {
 
   return (
     <div className="p-6">
-      <Card title="Profile Information">
-        <Descriptions column={1}>
-          <Descriptions.Item label="Name">{user.name}</Descriptions.Item>
-          <Descriptions.Item label="Email">{user.email}</Descriptions.Item>
-          <Descriptions.Item label="Role">{user.role}</Descriptions.Item>
-          <Descriptions.Item label="ID">{user.id}</Descriptions.Item>
-        </Descriptions>
+      <h1 className="text-3xl font-bold mb-6">My Profile</h1>
+      <Card className="w-full max-w-md">
+        <p><strong>Name:</strong> {user.name}</p>
+        <p><strong>Email:</strong> {user.email}</p>
+        <p><strong>Role:</strong> {user.role}</p>
+        {user.role === "student" && (
+          <p><strong>Student ID:</strong> {user.regNo || "Pending Admin Assignment"}</p>
+        )}
       </Card>
     </div>
   );

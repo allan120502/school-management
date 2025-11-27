@@ -9,16 +9,22 @@ import { useAuth } from "../context/AuthContext";
  * - allowedRoles: array of roles that can access this route
  */
 const PrivateRoute = ({ children, allowedRoles }) => {
-  const { user } = useAuth();
+  const { currentUser } = useAuth();
 
   // Not logged in
-  if (!user) {
+  if (!currentUser) {
     return <Navigate to="/login" replace />;
   }
 
   // Logged in but role not allowed
-  if (allowedRoles && !allowedRoles.includes(user.role)) {
-    return <Navigate to="/unauthorized" replace />;
+  if (allowedRoles && !allowedRoles.includes(currentUser.role)) {
+    return (
+      <h1 className="p-6 text-3xl text-center" style={{ color: "#0B3D91" }}>
+        403 - Unauthorized
+      </h1>
+    );
+    // Or redirect to a specific unauthorized page:
+    // return <Navigate to="/unauthorized" replace />;
   }
 
   // Access allowed

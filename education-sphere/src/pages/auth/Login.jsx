@@ -1,4 +1,3 @@
-// src/pages/auth/Login.jsx
 import React, { useState } from "react";
 import { Form, Input, Button, Select } from "antd";
 import { useAuth } from "../../context/AuthContext";
@@ -10,54 +9,90 @@ const { Option } = Select;
 export default function Login() {
   const { login, loading } = useAuth();
   const navigate = useNavigate();
+  const [role, setRole] = useState("");
   const [error, setError] = useState("");
 
   const onFinish = async (values) => {
     setError("");
 
-    // Validate password strength
-    const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
-    if (!strongPasswordRegex.test(values.password)) {
-      setError(
-        "Password too weak. Must include uppercase, lowercase, number, special char, min 8 chars."
-      );
+    // Convert studentId → identifier
+    if (role === "student" && values.studentId) {
+      values.identifier = values.studentId;
+    }
+
+    const success = await login({ ...values, role });
+
+    if (!success) {
+      setError("Invalid credentials or role.");
       return;
     }
 
-    const success = await login(values);
-    if (!success) return;
+    // Fetch real role from localStorage
+    const user = JSON.parse(localStorage.getItem("currentUser"));
+    const actualRole = user.role;
 
-    // Redirect based on role
-    switch (values.role) {
-      case "admin": navigate("/admin"); break;
-      case "teacher": navigate("/teacher"); break;
-      case "finance": navigate("/finance"); break;
-      case "parent": navigate("/parent"); break;
-      case "student": navigate("/student"); break;
-      default: navigate("/"); break;
+    switch (actualRole) {
+      case "admin":
+        navigate("/admin/dashboard");
+        break;
+      case "teacher":
+        navigate("/teacher/dashboard");
+        break;
+      case "finance":
+        navigate("/finance/dashboard");
+        break;
+      case "parent":
+        navigate("/parent/dashboard");
+        break;
+      case "student":
+        navigate("/student/dashboard");
+        break;
+      default:
+        navigate("/");
+        break;
     }
   };
 
   return (
-    <div className="flex flex-col justify-center items-center min-h-screen bg-gray-50">
-      <img src={logo} alt="ElimuSphere" className="w-32 h-32 mb-6" />
-      <div className="bg-white border p-8 rounded-lg shadow-md w-80">
-        <h2 className="text-2xl text-center font-bold mb-6" style={{ color: "#0B3D91" }}>
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
+      <img src={logo} alt="Logo" className="w-32 h-32 mb-6" />
+
+      <div className="bg-white p-8 rounded-lg shadow-md w-80 flex flex-col items-center">
+        <h2 className="text-2xl font-bold mb-4 text-center" style={{ color: "#0B3D91" }}>
           Login
         </h2>
+
         {error && <p className="text-red-600 text-center mb-2">{error}</p>}
 
-        <Form layout="vertical" onFinish={onFinish}>
-          <Form.Item name="email" rules={[{ required: true, message: "Enter email" }, { type: "email" }]}>
-            <Input placeholder="Email" />
-          </Form.Item>
+        <Form layout="vertical" onFinish={onFinish} className="w-full">
 
-          <Form.Item name="password" rules={[{ required: true, message: "Enter password" }]}>
+          {role === "student" && (
+            <Form.Item
+              name="studentId"
+              rules={[{ required: true, message: "Enter Student ID" }]}
+            >
+              <Input placeholder="Student ID" />
+            </Form.Item>
+          )}
+
+          {role !== "student" && (
+            <Form.Item
+              name="identifier"
+              rules={[{ required: true, message: "Enter Email or Username" }]}
+            >
+              <Input placeholder="Email or Username" />
+            </Form.Item>
+          )}
+
+          <Form.Item
+            name="password"
+            rules={[{ required: true, message: "Enter password" }]}
+          >
             <Input.Password placeholder="Password" />
           </Form.Item>
 
-          <Form.Item name="role" rules={[{ required: true, message: "Select role" }]}>
-            <Select placeholder="Select Role">
+          <Form.Item name="role" rules={[{ required: true }]}>
+            <Select placeholder="Select Role" onChange={(value) => setRole(value)}>
               <Option value="admin">Admin</Option>
               <Option value="teacher">Teacher</Option>
               <Option value="finance">Finance</Option>
@@ -72,17 +107,22 @@ export default function Login() {
               htmlType="submit"
               block
               loading={loading}
-              style={{ backgroundColor: "#0B3D91", color: "#FFD700" }}
+              style={{
+                background: "linear-gradient(to right, #0B3D91, #FFD700)",
+                color: "#fff",
+              }}
             >
               Login
             </Button>
           </Form.Item>
         </Form>
 
-        <div className="flex justify-between mt-4 text-sm">
-          <Link to="/forgot-password" className="text-yellow-500 font-medium">Forgot Password?</Link>
-          <Link to="/register" className="text-yellow-500 font-medium">Register</Link>
-        </div>
+        <p className="text-gray-400 mt-4 text-sm text-center">
+          Don't have an account?{" "}
+          <Link to="/register" className="text-yellow-500 font-semibold hover:underline">
+            Sign up
+          </Link>
+        </p>
       </div>
     </div>
   );

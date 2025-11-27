@@ -1,20 +1,23 @@
-// src/pages/students/Attendance.jsx
 import React from "react";
 import { Card, Table } from "antd";
+import { useAuth } from "../../context/AuthContext";
 
-const Attendance = ({ attendanceRecords = [] }) => {
+const Attendance = () => {
+  const { user } = useAuth();
+
   const columns = [
     { title: "Month", dataIndex: "month", key: "month" },
     { title: "Attendance", dataIndex: "percentage", key: "percentage" },
   ];
 
+  const records = user?.attendanceRecords || [];
+
   return (
-    <Card>
-      <h2 className="text-xl font-semibold mb-4">Attendance</h2>
-      {attendanceRecords.length > 0 ? (
-        <Table columns={columns} dataSource={attendanceRecords} pagination={false} />
+    <Card title="Attendance">
+      {records.length > 0 ? (
+        <Table columns={columns} dataSource={records} pagination={false} rowKey="month" />
       ) : (
-        <p className="text-gray-500">No attendance records available yet.</p>
+        <p>No attendance records assigned yet.</p>
       )}
     </Card>
   );

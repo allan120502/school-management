@@ -1,34 +1,37 @@
-// src/pages/admin/AdminDashboard.jsx
-import React, { useEffect, useState } from "react";
+// src/pages/admin/Reports.jsx
+import React from "react";
 import { Card, Row, Col, Statistic } from "antd";
-import { UserOutlined, TeamOutlined, DollarOutlined } from "@ant-design/icons";
+import { UserOutlined, FileTextOutlined, DollarOutlined } from "@ant-design/icons";
 import { useAuth } from "../../context/AuthContext";
 
-const AdminDashboard = () => {
-  const { students = [], teachers = [] } = useAuth();
-  const [pendingFees, setPendingFees] = useState(0);
+const Reports = () => {
+  const { students = [] } = useAuth(); // default to empty array
+  const totalStudents = students.length;
 
-  // Calculate total pending fees dynamically
-  useEffect(() => {
-    const totalPending = students.reduce((sum, student) => {
-      const feesArray = student.fees || [];
-      const pending = feesArray
-        .filter((f) => f.status?.toLowerCase() !== "paid")
-        .reduce((s, f) => s + Number(f.amount || 0), 0);
-      return sum + pending;
-    }, 0);
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setPendingFees(totalPending);
-  }, [students]);
+  // Calculate Average GPA safely
+  const totalGPA = students.reduce((sum, student) => {
+    const grades = student.grades || [];
+    if (grades.length === 0) return sum;
+
+    const gradeToPoint = { "A+":5, "A":4.5, "B+":4, "B":3.5, "C":3, "D":2, "F":0 };
+    const gpa = grades.reduce((acc, g) => acc + (gradeToPoint[g.grade] || 0), 0) / grades.length;
+    return sum + gpa;
+  }, 0);
+  const avgGPA = totalStudents ? (totalGPA / totalStudents).toFixed(2) : 0;
+
+  // Calculate pending fees safely
+  const pendingFees = students.reduce((sum, student) => {
+    const feesArray = student.fees || [];
+    const pending = feesArray
+      .filter((f) => f.status?.toLowerCase() !== "paid")
+      .reduce((s, f) => s + Number(f.amount || 0), 0);
+    return sum + pending;
+  }, 0);
 
   return (
     <div className="p-6 space-y-6">
-      {/* Dashboard title */}
-      <h1 className="text-4xl font-bold mb-6" style={{ color: "#0B3D91" }}>
-        Admin Dashboard
-      </h1>
+      <h1 className="text-3xl font-bold text-yellow-500 mb-6">Reports & Analytics</h1>
 
-      {/* Top Stats */}
       <Row gutter={[16, 16]}>
         <Col xs={24} sm={12} lg={8}>
           <Card
@@ -37,7 +40,7 @@ const AdminDashboard = () => {
           >
             <Statistic
               title="Total Students"
-              value={students.length}
+              value={totalStudents}
               prefix={<UserOutlined style={{ color: "#FFD700" }} />}
               valueStyle={{ color: "#0B3D91", fontWeight: "bold", fontSize: "1.8rem" }}
             />
@@ -50,9 +53,9 @@ const AdminDashboard = () => {
             style={{ borderLeft: "6px solid #FFD700" }}
           >
             <Statistic
-              title="Total Teachers"
-              value={teachers.length}
-              prefix={<TeamOutlined style={{ color: "#FFD700" }} />}
+              title="Average GPA"
+              value={avgGPA}
+              prefix={<FileTextOutlined style={{ color: "#FFD700" }} />}
               valueStyle={{ color: "#0B3D91", fontWeight: "bold", fontSize: "1.8rem" }}
             />
           </Card>
@@ -76,4 +79,4 @@ const AdminDashboard = () => {
   );
 };
 
-export default AdminDashboard;
+export default Reports;

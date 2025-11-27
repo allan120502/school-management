@@ -1,58 +1,70 @@
-// src/pages/auth/Register.jsx
 import React, { useState } from "react";
-import { Form, Input, Button, Select } from "antd";
+import { Form, Input, Button, Select, message } from "antd";
 import { useAuth } from "../../context/AuthContext";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import logo from "/src/assets/images/Logo.png";
 
 const { Option } = Select;
 
 export default function Register() {
-  const { register, loading } = useAuth();
+  const { register, loading, currentUser } = useAuth();
   const navigate = useNavigate();
-  const [error, setError] = useState("");
+  const [role, setRole] = useState("");
 
   const onFinish = async (values) => {
-    setError("");
+    const userData = { ...values, role };
+    const success = await register(userData);
+    if (!success) return;
 
-    const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
-    if (!strongPasswordRegex.test(values.password)) {
-      setError("Password too weak. Must include uppercase, lowercase, number, special char, min 8 chars.");
+    if (role === "student") {
+      message.success(
+        `Student registered successfully! Assigned Student ID: ${currentUser?.regNo || ""}`
+      );
+      navigate("/student/dashboard");
       return;
     }
 
-    const success = await register(values);
-    if (!success) return;
+    if (role === "admin") {
+      message.success(`Admin registered successfully!`);
+      navigate("/admin/dashboard");
+      return;
+    }
 
-    switch (values.role) {
-      case "admin": navigate("/admin"); break;
-      case "teacher": navigate("/teacher"); break;
-      case "finance": navigate("/finance"); break;
-      case "parent": navigate("/parent"); break;
-      case "student": navigate("/student"); break;
-      default: navigate("/"); break;
+    if (role === "teacher") {
+      message.success(`Teacher registered successfully!`);
+      navigate("/teacher/dashboard");
+      return;
+    }
+
+    if (role === "finance") {
+      message.success(`Finance account registered successfully!`);
+      navigate("/finance/dashboard");
+      return;
+    }
+
+    if (role === "parent") {
+      message.success(`Parent account registered successfully!`);
+      navigate("/parent/dashboard");
+      return;
     }
   };
 
   return (
-    <div className="flex flex-col justify-center items-center min-h-screen bg-gray-50">
-      <img src={logo} alt="ElimuSphere" className="w-32 h-32 mb-6" />
-      <div className="bg-white border p-8 rounded-lg shadow-md w-80">
-        <h2 className="text-2xl text-center font-bold mb-6" style={{ color: "#0B3D91" }}>Registration</h2>
-        {error && <p className="text-red-600 text-center mb-2">{error}</p>}
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
+      <img src={logo} alt="Logo" className="w-32 h-32 mb-6" />
 
-        <Form layout="vertical" onFinish={onFinish}>
-          <Form.Item name="name" rules={[{ required: true, message: "Enter full name" }]}>
-            <Input placeholder="Full Name" />
-          </Form.Item>
-          <Form.Item name="email" rules={[{ required: true }, { type: "email" }]}>
-            <Input placeholder="Email" />
-          </Form.Item>
-          <Form.Item name="password" rules={[{ required: true }]}>
-            <Input.Password placeholder="Password" />
-          </Form.Item>
+      <div className="bg-white p-8 rounded-lg shadow-md w-80 flex flex-col items-center">
+        <h2
+          className="text-2xl font-bold mb-4 text-center"
+          style={{ color: "#0B3D91" }}
+        >
+          Register
+        </h2>
+
+        <Form layout="vertical" onFinish={onFinish} className="w-full">
+
           <Form.Item name="role" rules={[{ required: true }]}>
-            <Select placeholder="Select Role">
+            <Select placeholder="Select Role" onChange={(value) => setRole(value)}>
               <Option value="admin">Admin</Option>
               <Option value="teacher">Teacher</Option>
               <Option value="finance">Finance</Option>
@@ -61,16 +73,46 @@ export default function Register() {
             </Select>
           </Form.Item>
 
+          <Form.Item name="name" rules={[{ required: true }]}>
+            <Input placeholder="Full Name" />
+          </Form.Item>
+
+          <Form.Item name="email" rules={[{ required: true }, { type: "email" }]}>
+            <Input placeholder="Email" />
+          </Form.Item>
+
+          <Form.Item name="password" rules={[{ required: true }]}>
+            <Input.Password placeholder="Password" />
+          </Form.Item>
+
           <Form.Item>
-            <Button type="primary" htmlType="submit" block loading={loading} style={{ backgroundColor: "#0B3D91", color: "#FFD700" }}>
+            <Button
+              type="primary"
+              htmlType="submit"
+              block
+              loading={loading}
+              style={{
+                background: "linear-gradient(to right, #0B3D91, #FFD700)",
+                color: "#fff",
+              }}
+            >
               Register
             </Button>
           </Form.Item>
         </Form>
 
-        <div className="text-center mt-4 text-sm">
-          Already have an account? <Link to="/login" className="text-blue-700">Login</Link>
+        <div className="text-center mt-2">
+          <span className="text-gray-600 text-sm">
+            Already have an account?{" "}
+            <span
+              className="text-blue-600 font-semibold cursor-pointer hover:underline"
+              onClick={() => navigate("/login")}
+            >
+              Login
+            </span>
+          </span>
         </div>
+
       </div>
     </div>
   );
